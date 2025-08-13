@@ -1,0 +1,36 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: ["serve"]
+
+  app:
+    build: .
+    container_name: rag-agent
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - DEBUG=0
+      - LOG_JSON=1
+      - OLLAMA_HOST=http://ollama:11434
+      - MODEL_PROVIDER=ollama
+      - MODEL_NAME=phi3:mini
+    ports:
+      - "7860:7860"
+    # no volumes here
+
+volumes:
+  ollama-models:
+  chroma-data:

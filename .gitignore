@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.dist/
+build/
+dist/
+.venv/
+venv/
+
+# Tools & caches
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+.cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Env & secrets
+.env
+.env.*
+
+# Data / indices / models (adjust if you want them committed)
+storage/
+data/
+models/
+
+# Notebooks
+*.ipynb_checkpoints/
+
+# Node (if ever added)
+node_modules/
+
+# Git
+.git-credentials
