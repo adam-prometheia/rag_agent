@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rag_agent"
-version = "0.1.0"
+version = "0.2.0"
 description = "Modular, port–adapter RAG agent with Gradio UI"
 authors = [
-  { name = "Your Name", email = "you@example.com" }
+  { name = "adam-prometheia", email = "adam.phillips@prometheia.co.uk" }
 ]
 readme = "README.md"
 license = "MIT"

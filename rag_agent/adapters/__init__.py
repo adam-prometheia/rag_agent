@@ -50,6 +50,14 @@ def register_verifier(name: str):
         return cls
     return _wrap
 
+EMBEDDER_REG: dict[str, type] = {}
+
+def register_embedder(name: str):
+    def _wrap(cls):
+        EMBEDDER_REG[name] = cls
+        return cls
+    return _wrap
+
 from .llm_openai import OpenAILLM   # noqa: F401,E402
 from .llm_ollama import OllamaLLM   # noqa: F401,E402
 from .vector_chroma import ChromaVectorStore   # noqa: F401,E402
@@ -60,6 +68,7 @@ from rag_agent.adapters.loader_html  import HtmlLoader  # noqa: F401,E402
 from rag_agent.adapters.loader_auto  import AutoLoader  # noqa: F401,E402
 from rag_agent.adapters.reranker_hf import HFReRanker   # noqa: F401,E402
 from rag_agent.adapters.verifier_llm import LLVerify   # noqa: F401,E402
+from rag_agent.adapters.embedder_ollama import OllamaEmbedder  # noqa: F401,E402
 
 __all__ = [
     "LLM_REG", "register_llm",
@@ -67,4 +76,5 @@ __all__ = [
     "LOADER_REG", "register_loader",
     "RERANKER_REG", "register_reranker",
     "VERIFIER_REG", "register_verifier",
+    "EMBEDDER_REG", "register_embedder"
 ]
