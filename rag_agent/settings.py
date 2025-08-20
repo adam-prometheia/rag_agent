@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 class Settings(BaseSettings):
     # LLM
@@ -10,6 +11,13 @@ class Settings(BaseSettings):
     vector_backend: str = "chroma"
     index_dir: str = "./storage/chroma"
     clear_index_on_startup: bool = True
+
+    # Embeddings
+    embedding_provider: str = "ollama"
+    embedding_model: str = "nomic-embed-text"   # tiny, fast default
+    embedding_normalise: bool = True
+    embedding_metric: str = "cosine"            # for the vector store
+    embedding_concurrency: int = 4  # safe default on CPU
     
     # Retrieval/summariser knobs
     retriever_k: int = 6
@@ -44,6 +52,12 @@ class Settings(BaseSettings):
 
     # Flags
     debug: bool = True
+    
+    # Minimalist mode override
+    if os.getenv("MINIMAL_MODE", "false").lower() == "true":
+        RERANKER_PROVIDER = "none"
+        VERIFIER_PROVIDER = "none"
+        EMBEDDING_CONCURRENCY = int(os.getenv("EMBEDDING_CONCURRENCY", "6"))
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="")
 

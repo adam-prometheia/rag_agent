@@ -1,7 +1,8 @@
-from rag_agent.adapters import LLM_REG, LOADER_REG, VECTOR_REG, RERANKER_REG, VERIFIER_REG
+from rag_agent.adapters import LLM_REG, LOADER_REG, VECTOR_REG, RERANKER_REG, VERIFIER_REG, EMBEDDER_REG
 from rag_agent.settings import settings
 from rag_agent.core.service import RAGService
 from rag_agent.core.errors import LLMError, LoaderError, VectorError, RerankerError, VerifierError
+import os
 
 from rag_agent.core.logging_setup import init_logging, get_logger
 logger = get_logger(__name__)
@@ -14,6 +15,7 @@ def build_service() -> RAGService:
         "reranker": settings.reranker_backend, "verifier": settings.verifier_backend,
         "retriever_k": settings.retriever_k, "reranker_top_k": settings.reranker_top_k,
         "index_dir": settings.index_dir,
+        "embedding_provider": settings.embedding_provider, "embedding_model": settings.embedding_model,
     })
     try:
         llm_cls = LLM_REG[settings.model_provider]
@@ -50,13 +52,28 @@ def build_service() -> RAGService:
             f"Unknown verifier backend '{settings.verifier_backend}'. "
             f"Valid options are: {list(VERIFIER_REG.keys())}"
         )
+    try:
+        embedder_cls = EMBEDDER_REG[settings.embedding_provider]
+    except KeyError:
+        raise VectorError(f"Unknown embedding provider '{settings.embedding_provider}'. Options: {list(EMBEDDER_REG)}")
     llm = llm_cls()
     loader = loader_cls()
-    vector = vector_cls(index_path=settings.index_dir)
+    embedder = embedder_cls(
+        model=settings.embedding_model,
+        base_url=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
+        concurrency=getattr(settings, "embedding_concurrency", 4),
+    )
+    try:
+        _ = embedder.embed_query("warmup")
+    except Exception:
+        pass
+    vector = vector_cls(index_path=settings.index_dir, embedder=embedder, metric=settings.embedding_metric)
     reranker = reranker_cls()
     verifier = verifier_cls()
-    return RAGService(llm=llm,
-                      vector=vector,
-                      loader=loader,
-                      reranker=reranker,
-                      verifier=verifier)
+    return RAGService(
+        llm=llm,
+        vector=vector,
+        loader=loader,
+        reranker=reranker,
+        verifier=verifier,
+    )

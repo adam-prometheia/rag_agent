@@ -17,7 +17,7 @@ Modular, port–adapter **RAG agent** with a Gradio UI. Backends (LLM, vector, r
 
 ## Requirements
 
-* Python **3.11** (recommended)
+* Python **3.10** (recommended)
 * (Local OCR/PDF) poppler + tesseract (Docker image already includes these)
 
 ---
